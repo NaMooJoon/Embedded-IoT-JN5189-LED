@@ -151,6 +151,48 @@ void BOARD_InitPins(void)
                                         IOCON_PIO_SSEL_DI);
     /* PORT0 PIN9 (coords: 12) is configured as USART0_RXD */
     IOCON_PinMuxSet(IOCON, 0U, 9U, port0_pin9_config);
+
+    const uint32_t port0_pin10_config = (/* Pin is configured as USART0_TXD */
+                                        IOCON_PIO_FUNC2 |
+                                        /* Selects pull-up function */
+                                        IOCON_PIO_MODE_PULLUP |
+                                        /* Standard mode, output slew rate control is disabled */
+                                        IOCON_PIO_SLEW0_STANDARD |
+                                        /* Input function is not inverted */
+                                        IOCON_PIO_INV_DI |
+                                        /* Enables digital function */
+                                        IOCON_PIO_DIGITAL_EN |
+                                        /* Input filter disabled */
+                                        IOCON_PIO_INPFILT_OFF |
+                                        /* Standard mode, output slew rate control is disabled */
+                                        IOCON_PIO_SLEW1_STANDARD |
+                                        /* Open drain is disabled */
+                                        IOCON_PIO_OPENDRAIN_DI |
+                                        /* SSEL is disabled */
+                                        IOCON_PIO_SSEL_DI);
+    /* PORT0 PIN10 (coords: 13) is configured as USART1_TXD */
+    IOCON_PinMuxSet(IOCON, 0U, 10U, port0_pin10_config);
+
+    const uint32_t port0_pin11_config = (/* Pin is configured as USART0_RXD */
+                                        IOCON_PIO_FUNC2 |
+                                        /* Selects pull-up function */
+                                        IOCON_PIO_MODE_PULLUP |
+                                        /* Standard mode, output slew rate control is disabled */
+                                        IOCON_PIO_SLEW0_STANDARD |
+                                        /* Input function is not inverted */
+                                        IOCON_PIO_INV_DI |
+                                        /* Enables digital function */
+                                        IOCON_PIO_DIGITAL_EN |
+                                        /* Input filter disabled */
+                                        IOCON_PIO_INPFILT_OFF |
+                                        /* Standard mode, output slew rate control is disabled */
+                                        IOCON_PIO_SLEW1_STANDARD |
+                                        /* Open drain is disabled */
+                                        IOCON_PIO_OPENDRAIN_DI |
+                                        /* SSEL is disabled */
+                                        IOCON_PIO_SSEL_DI);
+    /* PORT0 PIN11 (coords: 14) is configured as USART1_RXD */
+    IOCON_PinMuxSet(IOCON, 0U, 11U, port0_pin11_config);
 }
 /***********************************************************************************************************************
  * EOF
