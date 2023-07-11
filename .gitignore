@@ -84,6 +84,7 @@ _deps
 ../jn5189dk6_freertos_usart_RX/
 ../jn5189dk6_led_blinky/
 ../jn5189dk6_usart_esp_nxp_protocol/Debug/
+/*/.setting/
 
 ### CMake Patch ###
 
