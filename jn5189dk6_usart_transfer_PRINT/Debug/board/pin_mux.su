@@ -1,3 +1,0 @@
-C:\nxp\Workspace\jn5189dk6_usart_transfer_study_debug_console_PRINT\drivers/fsl_iocon.h:143:22:IOCON_PinMuxSet	24	static
-../board/pin_mux.c:36:6:BOARD_InitBootPins	8	static
-../board/pin_mux.c:66:6:BOARD_InitPins	32	static

@@ -1,3 +1,0 @@
-C:\nxp\Workspace\jn5189dk6_usart_transfer_study_debug_console_PRINT\drivers/fsl_usart.h:300:24:USART_GetStatusFlags	16	static
-C:\nxp\Workspace\jn5189dk6_usart_transfer_study_debug_console_PRINT\drivers/fsl_usart.h:500:23:USART_ReadByte	16	static
-../source/usart_transfer_print.c:35:5:main	16	static
