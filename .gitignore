@@ -71,19 +71,9 @@ CTestTestfile.cmake
 _deps
 
 ### Directory
-../jn5189dk6_usart_transfer_PRINT/
-../jn5189dk6_usart_transfer_SEND/
-../jn5189dk_esp_nxp_usart_led/
 ../.mcuxpressoide_packages_support/
 ../.vscode/
-../AzureRTOS_TAD_logs/
-../FreeRTOS_TAD_logs/
-../ZephyrRTOS_TAD_logs/
-../jn5189dk6_freertos_hello/
-../jn5189dk6_freertos_usart/
-../jn5189dk6_freertos_usart_RX/
-../jn5189dk6_led_blinky/
-
+../jn5189dk6_usart_esp_nxp_protocol/Debug/
 
 ### CMake Patch ###
 
