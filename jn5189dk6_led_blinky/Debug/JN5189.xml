@@ -1,0 +1,5 @@
+<directory>
+ <chips chipVendor='NXP' >
+  <chip name='JN5189' xml_file='JN5189_part.xml' />
+ </chips>
+</directory> 
