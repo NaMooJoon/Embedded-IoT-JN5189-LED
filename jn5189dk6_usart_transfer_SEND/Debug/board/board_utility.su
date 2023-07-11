@@ -1,5 +1,0 @@
-../board/board_utility.c:552:39:BOARD_GetClock32MCapacitanceCharacteristics	4	static
-../board/board_utility.c:558:39:BOARD_GetClock32kCapacitanceCharacteristics	4	static
-../board/board_utility.c:873:6:BOARD_CpuClockUpdate48Mz	8	static
-../board/board_utility.c:881:6:BOARD_CpuClockUpdate32MhzFro	8	static
-../board/board_utility.c:889:6:BOARD_CpuClockUpdate32MhzXtal	8	static
