@@ -84,6 +84,8 @@ _deps
 ../jn5189dk6_freertos_usart_RX/
 ../jn5189dk6_led_blinky/
 ../jn5189dk6_usart_esp_nxp_protocol/Debug/
+../jn5189dk6_zigbee_coordinator_bm/Debug/
+../jn5189dk6_zigbee_router_bm/Debug/
 /*/.setting/
 
 ### CMake Patch ###
