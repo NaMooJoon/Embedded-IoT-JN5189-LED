@@ -172,6 +172,18 @@ static void vProcessCommand(void)
         DBG_vPrintf(TRACE_SERIAL, "Toggle\r\n");
         sButtonEvent.eType = APP_E_EVENT_SERIAL_TOGGLE;
     }
+    /* Custom functions */
+    else if (0 == stricmp((char*)token, "ledon"))
+    {
+        DBG_vPrintf(TRACE_SERIAL, "Led ON\r\n");
+        sButtonEvent.eType = APP_E_EVENT_SERIAL_LED_ON;
+    }
+    else if (0 == stricmp((char*)token, "ledoff"))
+    {
+        DBG_vPrintf(TRACE_SERIAL, "Led OFF\r\n");
+        sButtonEvent.eType = APP_E_EVENT_SERIAL_LED_OFF;
+    }
+    /********************/
     else if (0 == stricmp((char*)token, "steer"))
     {
         DBG_vPrintf(TRACE_SERIAL, "Steer\r\n");
@@ -221,6 +233,8 @@ static void vProcessCommand(void)
         DBG_vPrintf(1, "Unkown serial command %s\r\n", token);
         DBG_vPrintf(1,"Commands Supported \r\n");
         DBG_vPrintf(1,"****************** \r\n");
+        DBG_vPrintf(1,"ledon- turn on the LED command\r\n");
+        DBG_vPrintf(1,"ledoff- turn off the LED command\r\n");
         DBG_vPrintf(1,"toggle - sends on\\off toggle command\r\n");
         DBG_vPrintf(1,"steer  - opens permit join window\r\n");
         DBG_vPrintf(1,"form   - forms the network\r\n");
