@@ -42,6 +42,8 @@
 static void vAppHandleAfEvent( BDB_tsZpsAfEvent *psZpsAfEvent);
 static void vAppHandleZdoEvents( BDB_tsZpsAfEvent *psZpsAfEvent);
 static void vAppSendOnOff(void);
+static void vAppSendOn(void);
+static void vAppSendOff(void);
 static void vAppSendIdentifyStop( uint16_t u16Address, uint8_t u8Endpoint);
 static void vAppSendRemoteBindRequest(uint16_t u16DstAddr, uint16_t u16ClusterId, uint8_t u8DstEp);
 static void APP_vBdbInit(void);
@@ -270,6 +272,18 @@ void APP_taskCoordinator(void)
 
         switch(sAppEvent.eType)
         {
+
+
+                case APP_E_EVENT_SERIAL_LED_ON:
+                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send Ledon Cmd\r\n");
+                    vAppSendOn();
+                    break;
+
+                case APP_E_EVENT_SERIAL_LED_OFF:
+                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send Ledoff Cmd\r\n");
+                    vAppSendOff();
+                    break;
+
                 case APP_E_EVENT_SERIAL_TOGGLE:
                     DBG_vPrintf(TRACE_APP, "APP-EVT: Send Toggle Cmd\r\n");
                     vAppSendOnOff();
@@ -470,6 +484,74 @@ static void vAppHandleZdoEvents( BDB_tsZpsAfEvent *psZpsAfEvent)
     }
 }
 
+/* Custom functions */
+/***************************************************************************
+ * 
+ * NAME: vAppSendOn
+ * 
+ * DESCRIPTION:
+ * Sends an Turn On Command to the bound devices
+ * 
+ * RETURN:
+ * void
+ * 
+ ***************************************************************************/
+static void vAppSendOn(void)
+{
+    tsZCL_Address   sDestinationAddress;
+    uint8_t u8seqNo;
+    teZCL_Status eStatus;
+
+    sDestinationAddress.eAddressMode = E_ZCL_AM_BOUND_NON_BLOCKING;
+
+    eStatus = eCLD_OnOffCommandSend( APP_u8GetDeviceEndpoint(),      // Src Endpoint
+                             0,                                             // Dest Endpoint (bound so do not care)
+                             &sDestinationAddress,
+                             &u8seqNo,
+                             E_CLD_ONOFF_CMD_ON);
+
+    if (eStatus != E_ZCL_SUCCESS)
+    {
+        DBG_vPrintf(TRACE_APP, "Send Ledon Failed x%02x Last error %02x\r\n",
+                        eStatus, eZCL_GetLastZpsError());
+    }
+
+}
+
+
+
+/***************************************************************************
+ * 
+ * NAME: vAppSendOff
+ * 
+ * DESCRIPTION:
+ * Sends an Turn Off Command to the bound devices
+ * 
+ * RETURN:
+ * void
+ * 
+ ***************************************************************************/
+static void vAppSendOff(void)
+{
+    tsZCL_Address   sDestinationAddress;
+    uint8_t u8seqNo;
+    teZCL_Status eStatus;
+
+    sDestinationAddress.eAddressMode = E_ZCL_AM_BOUND_NON_BLOCKING;
+
+    eStatus = eCLD_OnOffCommandSend( APP_u8GetDeviceEndpoint(),      // Src Endpoint
+                             0,                                             // Dest Endpoint (bound so do not care)
+                             &sDestinationAddress,
+                             &u8seqNo,
+                             E_CLD_ONOFF_CMD_OFF);
+
+    if (eStatus != E_ZCL_SUCCESS)
+    {
+        DBG_vPrintf(TRACE_APP, "Send Ledoff Failed x%02x Last error %02x\r\n",
+                        eStatus, eZCL_GetLastZpsError());
+    }
+
+}
 
 
 /****************************************************************************
