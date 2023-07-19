@@ -12,7 +12,7 @@
 
 /* Ring buffer */
 #define RING_BUFFER_SIZE 128
-#define ACK_SIZE 5
+#define ACK_SIZE 6
 
 #define MIN_RX_PACKET_SIZE 10
 #define MAX_RX_PACKET_SIZE 16
@@ -34,6 +34,11 @@ typedef enum packet_data {
 	join,
 	leave,
 	dle,
+	form,
+	steer,
+	find,
+	hardreset,
+	softreset,
 	N_command
 } PacketData;
 
@@ -71,7 +76,7 @@ void initializeUsart(void);
 void ESP_USART_IRQHandler (void);
 
 /* data_process */
-PacketData read_packet_from_buf (RxDataPacket *packet);
+PacketData read_packet_from_buf (uint8_t *packet);
 void write_response (PacketData data);
 void print_packet_data (RxDataPacket* packet);
 
