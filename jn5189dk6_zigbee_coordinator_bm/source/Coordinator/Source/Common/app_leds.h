@@ -25,6 +25,7 @@
 /****************************************************************************/
 void APP_vLedInitialise(void);
 void APP_vSetLed(uint8_t u8Led, bool_t bState);
+void APP_vSetLedBrightness(uint8_t u8Led, uint8_t brightness);
 
 
 /****************************************************************************/

@@ -107,6 +107,7 @@ void main_task (uint32_t parameter)
         /* place initialization code here... */
         initialized = TRUE;
         initializeUsart();
+        initializePwm();
         RNG_Init();
         SecLib_Init();
         MEM_Init();
