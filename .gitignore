@@ -91,6 +91,19 @@ _deps
 ../jn5189dk6_zigbee_router_bm/Coordinator/Source/
 /*/.setting/
 
+# files
+.cproject
+language.settings.xml
+DeviceCreateOtaEncClient.sh
+pdum_gen.c
+pdum_gen.h
+zps_gen.c
+zps_gen.h
+jn5189dk6_zigbee_coordinator_bm.mex
+org.eclipse.cdt.core.prefs
+*.bin
+*.ota
+
 ### CMake Patch ###
 
 # External projects
