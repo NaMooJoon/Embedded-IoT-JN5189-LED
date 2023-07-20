@@ -75,7 +75,6 @@ void ESP_USART_IRQHandler (void)
  ******************************************************************************/
 PacketData read_packet_from_buf (uint8_t *packet, uint8_t next_seq)
 {
-	uint8_t checksum;
 	uint8_t size;
 	uint8_t i;
 
@@ -84,7 +83,9 @@ PacketData read_packet_from_buf (uint8_t *packet, uint8_t next_seq)
 	if (pop_buf() != start) 	goto __flush_extra_packet__;
 
 	/* Read SEQ */
-	if (pop_buf() != next_seq)	goto __flush_extra_packet__;
+	if (pop_buf() != next_seq)	{
+		goto __flush_extra_packet__;
+	}
 
 	/* Read command */
 	size = peek_buf();
@@ -178,7 +179,7 @@ void deliver_command(uint8_t *packet)
 	
 		case hue:
 			DBG_vPrintf(TRACE_SERIAL, "Hue \r\n");
-			DBG_vPrintf(TRACE_SERIAL, " ㄴThis LED does not off the Hue.\r\n");
+			DBG_vPrintf(TRACE_SERIAL, " ㄴThis LED does not offer the Hue.\r\n");
 			break; 
 
 		case form:

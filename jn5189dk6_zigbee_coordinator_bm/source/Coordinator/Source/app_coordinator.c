@@ -298,8 +298,8 @@ void APP_taskCoordinator(void)
 
                 case APP_E_EVENT_SERIAL_BRIGHTNESS:
                 	DBG_vPrintf(TRACE_APP, "APP-EVT: Tune Brightness: %d Cmd\r\n", sAppEvent.data);
+					brightness = sAppEvent.data;
                 	if (lightOn) {
-                		brightness = sAppEvent.data;
                 		APP_vSetLedBrightness(LED1, brightness);
                 	}
                 	break;
