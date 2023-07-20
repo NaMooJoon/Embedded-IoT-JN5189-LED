@@ -12,12 +12,11 @@
 
 /* Ring buffer */
 #define RING_BUFFER_SIZE 128
-#define ACK_SIZE 6
+#define ACK_SIZE 7
 
 #define MIN_RX_PACKET_SIZE 10
 #define MAX_RX_PACKET_SIZE 16
 
-extern uint8_t seq;
 extern uint8_t ring_buffer[];
 extern volatile uint16_t front_idx; 				/* Index of the data to send out. */
 extern volatile uint16_t back_idx; 					/* Index of the memory to save new arrived data. */
@@ -76,15 +75,16 @@ void initializeUsart(void);
 void ESP_USART_IRQHandler (void);
 
 /* data_process */
-PacketData read_packet_from_buf (uint8_t *packet);
-void write_response (PacketData data);
-void print_packet_data (RxDataPacket* packet);
+PacketData read_packet_from_buf (uint8_t *packet, uint8_t next_seq);
+void write_response (uint8_t seq);
+void deliver_command(uint8_t *packet);
 
 /* Circular buffer (queue) API*/
 uint8_t pop_buf ();
 uint8_t peek_buf ();
 void push_buf (uint8_t byte);
 uint8_t get_rest_buf_size ();				/* Get the size number of remain data in buffer */
+void flush_buf_upto_dle ();
 
 void data_process_task();
 

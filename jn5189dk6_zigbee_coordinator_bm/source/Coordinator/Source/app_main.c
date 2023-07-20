@@ -40,6 +40,7 @@
 #include "zps_apl_zdo.h"
 #include "dbg.h"
 
+#include "iot_pwm.h"
 #include "iot_usart.h"
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
@@ -123,7 +124,7 @@ void main_task (uint32_t parameter)
     {
 
         /* place event handler code here... */
-        data_process_task();
+    	data_process_task();
     	APP_vRunZigbee();
     	ZTIMER_vTask();
         APP_taskCoordinator();
