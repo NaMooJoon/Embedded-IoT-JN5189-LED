@@ -1,4 +1,4 @@
-/*
+/*APP_vSetLedBrightness
 * Copyright 2019 NXP
 * All rights reserved.
 *
@@ -16,6 +16,8 @@
 #include "fsl_debug_console.h"
 #include "fsl_iocon.h"
 #include "fsl_inputmux.h"
+
+#include "iot_pwm.h"
 
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
@@ -102,6 +104,33 @@ void APP_vSetLed(uint8_t u8Led, bool_t bState)
 }
 
 
+/****************************************************************************
+ *
+ * NAME: APP_vSetLedBrightness
+ *
+ * DESCRIPTION:
+ * set the brightness of LED
+ *
+ * PARAMETER:
+ *
+ * RETURNS:
+ *
+ ****************************************************************************/
+void APP_vSetLedBrightness(uint8_t u8Led, uint8_t brightness)
+{
+	switch (u8Led)
+	{
+	case LED1:
+		brightness = (60.0 / 100.0) * brightness;
+		pwm_tune_pulse(brightness);
+		break;
+	case LED2:
+		/* Todo */
+		break;
+	default:
+		break;
+	}
+}
 /****************************************************************************/
 /***        Local Functions                                               ***/
 /****************************************************************************/

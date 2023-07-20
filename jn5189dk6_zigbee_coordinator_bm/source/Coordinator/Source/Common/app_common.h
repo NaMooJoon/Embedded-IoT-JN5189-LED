@@ -55,6 +55,7 @@ typedef enum
     APP_E_EVENT_SERIAL_LED_ON,
     APP_E_EVENT_SERIAL_LED_OFF,
 	APP_E_EVENT_SERIAL_TOGGLE,
+	APP_E_EVENT_SERIAL_BRIGHTNESS,
 	APP_E_EVENT_SERIAL_NWK_STEER,
 	APP_E_EVENT_SERIAL_FIND_BIND_START,
 	APP_E_EVENT_SERIAL_FORM_NETWORK
@@ -79,6 +80,7 @@ typedef struct
 
 typedef struct
 {
+	uint16_t data;
 	teAppEvents eType;
     union
     {

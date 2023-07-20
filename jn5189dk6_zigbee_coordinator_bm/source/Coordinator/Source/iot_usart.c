@@ -5,14 +5,17 @@
 
 /* IoT System includes */
 #include "iot_usart.h"
+#include "iot_crc8.h"
 
 #include "dbg.h"
 #include "ZQueue.h"
+#include "app_coordinator.h"
 #include "app_common.h"
 #include "app_main.h"
+#include "fsl_reset.h"
+#include "MicroSpecific.h"
 
 /* ESP-NXP receive buffer */
-uint8_t seq = 0;
 uint8_t ring_buffer[RING_BUFFER_SIZE];
 volatile uint16_t front_idx = 0; 				/* Index of the data to send out. */
 volatile uint16_t back_idx = 0; 				/* Index of the memory to save new arrived data. */
@@ -70,73 +73,159 @@ void ESP_USART_IRQHandler (void)
 /*******************************************************************************
  * Data process task
  ******************************************************************************/
-PacketData read_packet_from_buf (uint8_t *packet)
+PacketData read_packet_from_buf (uint8_t *packet, uint8_t next_seq)
 {
-	uint8_t checksum;
 	uint8_t size;
 	uint8_t i;
 
 	/* Find start byte */
-	if (pop_buf() != dle) 		goto __flush_packet_upto_dle__;
-	if (pop_buf() != start) 	goto __flush_packet_upto_dle__;
+	if (pop_buf() != dle) 		goto __flush_extra_packet__;
+	if (pop_buf() != start) 	goto __flush_extra_packet__;
 
 	/* Read SEQ */
-	seq = pop_buf();
+	if (pop_buf() != next_seq)	{
+		goto __flush_extra_packet__;
+	}
 
 	/* Read command */
 	size = peek_buf();
 	for (i = 0; i < size; i++) {
 		packet[i] = pop_buf();
 	}
+	/* Read checksum */
+	packet[i] = pop_buf();
 
-	/* checksum */
-	checksum = pop_buf();
-	// TODO: check the checksum number (CRC-8)
-
+	/* Calculate the checksum */
+	if (calc_checksum(packet, size+1) != 0)	{
+		goto __flush_extra_packet__;
+	}
 
 	while (get_rest_buf_size() < 2) ; /* Prevent buffer overflow */
-	if (pop_buf() != dle)		goto __flush_packet_upto_dle__;
-	if (pop_buf() != end)  		goto __flush_packet_upto_dle__;
+	if (pop_buf() != dle)		goto __flush_extra_packet__;
+	if (pop_buf() != end)  		goto __flush_extra_packet__;
 
 	return ack;
 
-__flush_packet_upto_dle__:
-	while (front_idx != back_idx) {
-		if (peek_buf() == dle) 	break;
-		else 					pop_buf();
+__flush_extra_packet__:
+	while (get_rest_buf_size() >= 2) {
+		if (pop_buf() == dle && pop_buf() == end) {
+			break;
+		}
 	}
+
 	return nak;
 }
 
-void write_response (PacketData data)
+
+void write_response (uint8_t seq)
 {
-	static PacketData ACK[ACK_SIZE] = { dle, start, ack, dle, end };
-	static PacketData NAK[ACK_SIZE] = { dle, start, nak, dle, end };
+	uint8_t checksum = (seq)? ACK_CHECKSUM1 : ACK_CHECKSUM0;
+	PacketData ACK[ACK_SIZE] = { dle, start, ack, seq, checksum, dle, end };
+	USART_WriteBlocking(ESP_USART, ACK, ACK_SIZE);
+}
 
-	switch (data)
+/*******************************************************************************
+ * Data process task
+ ******************************************************************************/
+void data_process_task ()
+{
+	static uint8_t waiting_seq = 0;
+	uint8_t packet[MAX_RX_PACKET_SIZE] = {0};
+    PacketData ack_stat; 				/* ack or nak */
+
+
+	/* Data parsing process */
+	flush_buf_upto_dle();
+	if (get_rest_buf_size() >= MIN_RX_PACKET_SIZE)
 	{
-		case ack:
-			USART_WriteBlocking(ESP_USART, ACK, ACK_SIZE);
-			break;
+		ack_stat = read_packet_from_buf(packet, waiting_seq);
+		switch (ack_stat)
+		{
+			case ack:
+				deliver_command(packet);
+				write_response(waiting_seq);
+				waiting_seq = (!waiting_seq);
+				break;
 
-		case nak:
-			USART_WriteBlocking(ESP_USART, NAK, ACK_SIZE);
-			break;
-
-		default:
-			break;
+			case nak:
+				write_response(!waiting_seq);
+				break;
+			
+			default:
+				break;
+		}
 	}
 }
 
-void print_packet_data (RxDataPacket* packet)
+void deliver_command(uint8_t *packet)
 {
-	// PRINTF("****** Packet request ******\n\r");
-	// PRINTF("  - Front_idx: %d, Back_idx: %d\n\r", front_idx, back_idx);
+	APP_tsEvent packetEvent;
+	packetEvent.eType = APP_E_EVENT_NONE;
 
-	// PRINTF("  - Target: %d, command:%d \r\n", packet->target, packet->command);
-	// PRINTF("  - Size: %d\r\n", packet->size);
-	// PRINTF("****** Packet received *****\n\r\n\r");
+	// cast the command to corresponding task thread.
+	switch (packet[command])
+	{
+		case power:
+			DBG_vPrintf(TRACE_SERIAL, "Power\r\n");
+			packetEvent.eType = (packet[data] == 1)?  APP_E_EVENT_SERIAL_LED_ON
+													: APP_E_EVENT_SERIAL_LED_OFF ;
+			break;
+
+		case brightness:
+			DBG_vPrintf(TRACE_SERIAL, "Brightness\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_BRIGHTNESS;
+			packetEvent.data  = packet[data];
+			break;
+	
+		case hue:
+			DBG_vPrintf(TRACE_SERIAL, "Hue \r\n");
+			DBG_vPrintf(TRACE_SERIAL, " ㄴThis LED does not offer the Hue.\r\n");
+			break; 
+
+		case form:
+			DBG_vPrintf(TRACE_SERIAL, "Form\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_FORM_NETWORK;
+			break;
+		
+		case steer:
+			DBG_vPrintf(TRACE_SERIAL, "Steer\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_NWK_STEER;
+			break;
+		
+		case find:
+			DBG_vPrintf(TRACE_SERIAL, "Find\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_FIND_BIND_START;
+			break;
+
+		case hardreset:
+			DBG_vPrintf(TRACE_SERIAL, "Factory reset\r\n");
+			while (front_idx != back_idx) pop_buf();
+			APP_vFactoryResetRecords();
+			MICRO_DISABLE_INTERRUPTS();
+			RESET_SystemReset();
+			break;
+		
+		case softreset:
+			DBG_vPrintf(TRACE_SERIAL, "Soft reset\r\n");
+			while (front_idx != back_idx) pop_buf();
+			MICRO_DISABLE_INTERRUPTS();
+			RESET_SystemReset();
+			break;
+		
+		default:
+			break;
+	}
+
+	if (packetEvent.eType != APP_E_EVENT_NONE)
+	{
+		if( ZQ_bQueueSend(&APP_msgAppEvents, &packetEvent)  == FALSE)
+		{
+			DBG_vPrintf(1, "Queue Overflow has happened \n");
+		}
+	}
+
 }
+
 
 
 /*******************************************************************************
@@ -146,19 +235,23 @@ void print_packet_data (RxDataPacket* packet)
 uint8_t pop_buf ()
 {
 	uint8_t reval = ring_buffer[front_idx];
-	front_idx = (front_idx+ 1) % RING_BUFFER_SIZE;
+	if (front_idx != back_idx) 
+		front_idx = (front_idx+ 1) % RING_BUFFER_SIZE;
 	return reval;
 }
 
 uint8_t peek_buf ()
 {
+	if (front_idx == back_idx)
+		return end;
 	return ring_buffer[front_idx];
 }
 
 void push_buf (uint8_t byte)
 {
-	ring_buffer[back_idx] = byte;
-	back_idx = (back_idx + 1) % RING_BUFFER_SIZE;
+	ring_buffer[back_idx] = byte; 
+	if (front_idx != (back_idx + 1) % RING_BUFFER_SIZE)
+		back_idx = (back_idx + 1) % RING_BUFFER_SIZE;
 }
 
 uint8_t get_rest_buf_size ()
@@ -167,54 +260,12 @@ uint8_t get_rest_buf_size ()
 								(back_idx + RING_BUFFER_SIZE) - front_idx;
 }
 
-
-
-
-void data_process_task ()
+void flush_buf_upto_dle ()
 {
-	uint8_t packet[MAX_RX_PACKET_SIZE] = {0};
-    PacketData ack_stat;
-
-	APP_tsEvent packetEvent;
-	packetEvent.eType = APP_E_EVENT_NONE;
-
-	/* Data parsing process */
-	if (get_rest_buf_size() >= MIN_RX_PACKET_SIZE)
-	{
-		ack_stat = read_packet_from_buf(packet);
-		write_response(ack_stat);
-
-		if (ack_stat == ack) {
-			// TODO: cast the command to corresponding task thread.
-			switch (packet[command])
-			{
-				case power:
-					if (packet[data] == 1) {
-						DBG_vPrintf(TRACE_SERIAL, "Led ON\r\n");
-						packetEvent.eType = APP_E_EVENT_SERIAL_LED_ON;
-					} else {
-						DBG_vPrintf(TRACE_SERIAL, "Led OFF\r\n");
-						packetEvent.eType = APP_E_EVENT_SERIAL_LED_OFF;
-					}
-					break;
-
-				case brightness:
-					
-					break;
-			
-				case hue:
-					break;
-				
-				default:
-					break;
-			}
-		}
-		if (packetEvent.eType != APP_E_EVENT_NONE)
-		{
-			if( ZQ_bQueueSend(&APP_msgAppEvents, &packetEvent)  == FALSE)
-       		{
-            	DBG_vPrintf(1, "Queue Overflow has happened \n");
-        	}
-		}
+	while (front_idx != back_idx) {
+		if (peek_buf() == dle) 	break;
+		else 					pop_buf();
 	}
 }
+
+
