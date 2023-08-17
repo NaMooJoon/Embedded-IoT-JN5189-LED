@@ -78,6 +78,7 @@ PacketData read_packet_from_buf (uint8_t *packet, uint8_t next_seq)
 	uint8_t size;
 	uint8_t i;
 
+	while (peek_buf() != dle) pop_buf();
 	/* Find start byte */
 	if (pop_buf() != dle) 		goto __flush_extra_packet__;
 	if (pop_buf() != start) 	goto __flush_extra_packet__;
@@ -130,13 +131,16 @@ void write_response (uint8_t seq)
 void data_process_task ()
 {
 	static uint8_t waiting_seq = 0;
+	uint8_t readSize = 0;
 	uint8_t packet[MAX_RX_PACKET_SIZE] = {0};
     PacketData ack_stat; 				/* ack or nak */
 
 
 	/* Data parsing process */
-	flush_buf_upto_dle();
-	if (get_rest_buf_size() >= MIN_RX_PACKET_SIZE)
+	readSize = get_rest_buf_size();
+	uint8_t dle_idx = (front_idx + readSize - 2) % RING_BUFFER_SIZE;
+	uint8_t end_idx = (front_idx + readSize - 1) % RING_BUFFER_SIZE;
+	if (readSize >= MIN_RX_PACKET_SIZE && (ring_buffer[dle_idx] == dle && ring_buffer[end_idx] == end))
 	{
 		ack_stat = read_packet_from_buf(packet, waiting_seq);
 		switch (ack_stat)
@@ -157,6 +161,7 @@ void data_process_task ()
 	}
 }
 
+
 void deliver_command(uint8_t *packet)
 {
 	APP_tsEvent packetEvent;
@@ -176,10 +181,18 @@ void deliver_command(uint8_t *packet)
 			packetEvent.eType = APP_E_EVENT_SERIAL_BRIGHTNESS;
 			packetEvent.data  = packet[data];
 			break;
+
+		case saturation:
+			DBG_vPrintf(TRACE_SERIAL, "Saturation\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_SATURATION;
+			packetEvent.data  = packet[data];
+			break;
 	
 		case hue:
 			DBG_vPrintf(TRACE_SERIAL, "Hue \r\n");
-			DBG_vPrintf(TRACE_SERIAL, " ㄴThis LED does not offer the Hue.\r\n");
+			packetEvent.eType = APP_E_EVENT_SERIAL_HUE;
+			packetEvent.data  = packet[data+1];
+			packetEvent.data  = *((uint16_t*) &packet[data]);
 			break; 
 
 		case form:

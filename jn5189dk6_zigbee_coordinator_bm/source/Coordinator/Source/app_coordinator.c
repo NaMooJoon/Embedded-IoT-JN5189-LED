@@ -26,7 +26,8 @@
 #include "app_leds.h"
 #include "app.h"
 
-#include "iot_pwm.h"
+#include "iot_led_pwm.h"
+#include "LevelControl.h"
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
 /****************************************************************************/
@@ -251,6 +252,8 @@ void APP_vBdbCallback(BDB_tsBdbEvent *psBdbEvent)
 }
 
 
+
+
 /****************************************************************************
  *
  * NAME: APP_taskCoordinator
@@ -262,12 +265,13 @@ void APP_vBdbCallback(BDB_tsBdbEvent *psBdbEvent)
  * void
  *
  ****************************************************************************/
+
 void APP_taskCoordinator(void)
 {
 	static uint8_t lightOn = false;
-	static uint8_t brightness = 100;
     BDB_teStatus eStatus;
     APP_tsEvent sAppEvent;
+
     sAppEvent.eType = APP_E_EVENT_NONE;
 
     if (ZQ_bQueueReceive(&APP_msgAppEvents, &sAppEvent) == TRUE)
@@ -279,14 +283,14 @@ void APP_taskCoordinator(void)
 
                 case APP_E_EVENT_SERIAL_LED_ON:
                     DBG_vPrintf(TRACE_APP, "APP-EVT: Send LED ON Cmd\r\n");
-                    APP_vSetLedBrightness(LED1, brightness);
+                    APP_vSetLedOn();
                     lightOn = true;
                     vAppSendOn();
                     break;
 
                 case APP_E_EVENT_SERIAL_LED_OFF:
                     DBG_vPrintf(TRACE_APP, "APP-EVT: Send LED OFF Cmd\r\n");
-                    APP_vSetLedBrightness(LED1, 0);
+                    APP_vSetLedOff();
                     lightOn = false;
                     vAppSendOff();
                     break;
@@ -296,11 +300,27 @@ void APP_taskCoordinator(void)
                     vAppSendOnOff();
                     break;
 
-                case APP_E_EVENT_SERIAL_BRIGHTNESS:
-                	DBG_vPrintf(TRACE_APP, "APP-EVT: Tune Brightness: %d Cmd\r\n", sAppEvent.data);
-					brightness = sAppEvent.data;
+                case APP_E_EVENT_SERIAL_HUE:
+                	g_hue = sAppEvent.data;
                 	if (lightOn) {
-                		APP_vSetLedBrightness(LED1, brightness);
+						DBG_vPrintf(TRACE_APP, "APP-EVT: hue(%d)\r\n", g_hue);
+						changeHSV(g_hue, g_sat, g_val);
+                	}
+                	break;
+
+                case APP_E_EVENT_SERIAL_BRIGHTNESS:
+					g_val = sAppEvent.data;
+                	if (lightOn) {
+						changeHSV(g_hue, g_sat, g_val);
+						DBG_vPrintf(TRACE_APP, "APP-EVT: Tune Brightness: %d Cmd\r\n", g_val);
+                	}
+                	break;
+
+                case APP_E_EVENT_SERIAL_SATURATION:
+                	g_sat = sAppEvent.data;
+                	if (lightOn) {
+						changeHSV(g_hue, g_sat, g_val);
+						DBG_vPrintf(TRACE_APP, "APP-EVT: saturation(%d)\r\n", g_sat);
                 	}
                 	break;
 
@@ -551,14 +571,24 @@ static void vAppSendOff(void)
     tsZCL_Address   sDestinationAddress;
     uint8_t u8seqNo;
     teZCL_Status eStatus;
+    // tsCLD_OnOff_OffWithEffectRequestPayload psPayload;
 
-    sDestinationAddress.eAddressMode = E_ZCL_AM_BOUND_NON_BLOCKING;
+    // psPayload.u8EffectId = 0x00;
+    // psPayload.u8EffectVariant = 0x00;
+
+    // sDestinationAddress.eAddressMode = E_ZCL_AM_BOUND_NON_BLOCKING;
 
     eStatus = eCLD_OnOffCommandSend( APP_u8GetDeviceEndpoint(),      // Src Endpoint
                              0,                                             // Dest Endpoint (bound so do not care)
                              &sDestinationAddress,
                              &u8seqNo,
                              E_CLD_ONOFF_CMD_OFF);
+    // eStatus = eCLD_OnOffCommandOffWithEffectSend(
+    //                 APP_u8GetDeviceEndpoint(),
+    //                 0,
+    //                 &sDestinationAddress,
+    //                 &u8seqNo,
+    //                 &psPayload);
 
     if (eStatus != E_ZCL_SUCCESS)
     {
@@ -601,6 +631,46 @@ static void vAppSendOnOff(void)
     }
 
 }
+
+/****************************************************************************
+ *
+ * NAME: vAppSendLevelControl
+ *
+ * DESCRIPTION:
+ * Sends a move to level command to instruct a device to move its 'current
+ * level' attribute to the specified level over a specified time.
+ *
+ * RETURNS:
+ * void
+ *
+ ****************************************************************************/
+//static void vAppSendLevelControl(uint8_t level)
+//{
+//    tsZCL_Address   sDestinationAddress;
+//    uint8_t u8seqNo;
+//    teZCL_Status eStatus;
+//
+//    sDestinationAddress.eAddressMode = E_ZCL_AM_BOUND_NON_BLOCKING;
+//
+//    tsCLD_LevelControl_MoveToLevelCommandPayload psPayload;
+//    psPayload.u8Level = (int)(level / 100.0 * 253.0) % 254 + 1;
+//    psPayload.u16TransitionTime = 0xFFFF;
+//
+//    eStatus = eCLD_LevelControlCommandMoveToLevelCommandSend(
+//                            APP_u8GetDeviceEndpoint(),
+//                            0,
+//                            &sDestinationAddress,
+//                            &u8seqNo,
+//                            0,
+//                            &psPayload);
+//
+//    if (eStatus != E_ZCL_SUCCESS)
+//    {
+//        DBG_vPrintf(TRACE_APP, "Send LED level Failed x%02x Last error %02x\r\n",
+//                        eStatus, eZCL_GetLastZpsError());
+//    }
+//
+//}
 
 /****************************************************************************
  *

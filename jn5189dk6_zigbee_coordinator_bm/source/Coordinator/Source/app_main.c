@@ -40,7 +40,7 @@
 #include "zps_apl_zdo.h"
 #include "dbg.h"
 
-#include "iot_pwm.h"
+#include "iot_led_pwm.h"
 #include "iot_usart.h"
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
@@ -108,7 +108,7 @@ void main_task (uint32_t parameter)
         /* place initialization code here... */
         initialized = TRUE;
         initializeUsart();
-        initializePwm();
+        initializeRgbLed();
         RNG_Init();
         SecLib_Init();
         MEM_Init();

@@ -11,7 +11,7 @@
 #define ESP_USART_BAUDRATE 115200U
 
 /* Ring buffer */
-#define RING_BUFFER_SIZE 128
+#define RING_BUFFER_SIZE 1024
 #define ACK_SIZE 7
 
 #define MIN_RX_PACKET_SIZE 10
@@ -38,6 +38,7 @@ typedef enum packet_data {
 	find,
 	hardreset,
 	softreset,
+	saturation,
 	N_command
 } PacketData;
 

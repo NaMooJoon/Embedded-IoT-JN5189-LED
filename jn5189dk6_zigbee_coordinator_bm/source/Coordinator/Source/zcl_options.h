@@ -38,8 +38,6 @@
 #define ZCL_DISABLE_APS_ACK                                               (TRUE)
 
 /* Which Custom commands needs to be supported */
-#define ZCL_ATTRIBUTE_READ_SERVER_SUPPORTED
-#define ZCL_ATTRIBUTE_WRITE_SERVER_SUPPORTED
 
 #define ZCL_ATTRIBUTE_REPORTING_SERVER_SUPPORTED
 #define ZCL_ATTRIBUTE_REPORTING_CLIENT_SUPPORTED
@@ -68,6 +66,10 @@
 
 #define CLD_ONOFF
 #define ONOFF_CLIENT
+
+#define CLD_LEVEL_CONTROL
+#define LEVEL_CONTROL_CLIENT
+#define LEVEL_CONTROL_SERVER
 
 #define CLD_OTA
 #define OTA_SERVER
@@ -119,6 +121,23 @@
 /*                                                                          */
 /* Add the following #define's to your zcl_options.h file to add optional   */
 /* attributes to the OnOff cluster.                                          */
+/****************************************************************************/
+#define CLD_ONOFF_ATTR_ID_ON_CONFIGURABLE_DURATION
+#define CLD_ONOFF_ATTR_ID_DURATION_UNIT_OF_MEASUREMENT
+#define CLD_ONOFF_ATTR_ID_MAX_DURATION
+#define CLD_ONOFF_ATTR_GLOBAL_SCENE_CONTROL
+#define CLD_ONOFF_ATTR_ON_TIME
+#define CLD_ONOFF_ATTR_OFF_WAIT_TIME
+
+#define CLD_ONOFF_CMD_ON_WITH_RECALL_GLOBAL_SCENE
+#define CLD_ONOFF_CMD_ON_WITH_TIMED_OFF
+#define CLD_ONOFF_CMD_OFF_WITH_EFFECT
+
+/****************************************************************************/
+/*             Level Control Cluster - Optional Attributes                  */
+/*                                                                          */
+/* Add the following #define's to your zcl_options.h file to add optional   */
+/* attributes to the level control cluster.                                 */
 /****************************************************************************/
 
 /****************************************************************************/
