@@ -17,31 +17,16 @@
 #include "fsl_iocon.h"
 #include "fsl_inputmux.h"
 
-#include "iot_pwm.h"
-
-/****************************************************************************/
-/***        Macro Definitions                                             ***/
-/****************************************************************************/
-
-/****************************************************************************/
-/***        Type Definitions                                              ***/
-/****************************************************************************/
-/****************************************************************************/
-/***        Local Function Prototypes                                     ***/
-/****************************************************************************/
+#include "iot_led_pwm.h"
 
 
-/****************************************************************************/
-/***        Exported Variables                                            ***/
-/****************************************************************************/
+static uint8_t value  = 250;
 
-/****************************************************************************/
-/***        Local Variables                                               ***/
-/****************************************************************************/
+uint16_t g_hue 		= 240;
+uint8_t g_sat		= 100;
+uint8_t g_val 		= 100;
 
-/****************************************************************************/
-/***        Exported Functions                                            ***/
-/****************************************************************************/
+
 /****************************************************************************
  *
  * NAME: APP_vLedInitialise
@@ -116,20 +101,28 @@ void APP_vSetLed(uint8_t u8Led, bool_t bState)
  * RETURNS:
  *
  ****************************************************************************/
-void APP_vSetLedBrightness(uint8_t u8Led, uint8_t brightness)
+void APP_vSetLedBrightness(uint8_t brightness)
 {
-	switch (u8Led)
-	{
-	case LED1:
-		brightness = (60.0 / 100.0) * brightness;
-		pwm_tune_pulse(brightness);
-		break;
-	case LED2:
-		/* Todo */
-		break;
-	default:
-		break;
-	}
+	value = (brightness / 100.0) * 250;
+}
+
+void APP_vSetLedOn(void)
+{
+	changeHSV(g_hue, g_sat, g_val);
+}
+
+void APP_vSetLedOff(void)
+{
+	changeHSV(g_hue, g_sat, 0);
+}
+
+void APP_vSetLedColor(uint8_t red, uint8_t green, uint8_t blue)
+{
+//	RGB[RED] 	= red;
+//	RGB[GREEN]	= green;
+//	RGB[BLUE]	= blue;
+
+//	changeRGB(RGB, value);
 }
 /****************************************************************************/
 /***        Local Functions                                               ***/
