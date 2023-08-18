@@ -1,15 +1,23 @@
 /*
-* Copyright 2019 NXP
-* All rights reserved.
-*
-* SPDX-License-Identifier: BSD-3-Clause
-*/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
+#ifndef ROM_EFUSE_H_
+#define ROM_EFUSE_H_
 
-#ifndef APP_LEDS_H
-#define APP_LEDS_H
+#if defined __cplusplus
+extern "C" {
+#endif
 
-#include "app_common.h"
+/****************************************************************************/
+/***        Include Files                                                 ***/
+/****************************************************************************/
+
+#include <rom_common.h>
+
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
 /****************************************************************************/
@@ -18,22 +26,27 @@
 /***        Type Definitions                                              ***/
 /****************************************************************************/
 
-
-
 /****************************************************************************/
 /***        Exported Functions                                            ***/
 /****************************************************************************/
-void APP_vLedInitialise(void);
-void APP_vSetLed(uint8_t u8Led, bool_t bState);
-void APP_vSetLedBrightness(uint8_t u8Led, uint8_t brightness);
+static inline bool efuse_ReadBit(uint8_t efuse_bitpos)
+{
+    bool (*p_efuse_ReadBit)(uint8_t bitpos);
+    p_efuse_ReadBit = (bool (*)(uint8_t bitpos))0x03001671U;
 
-
+    return p_efuse_ReadBit(efuse_bitpos);
+}
 /****************************************************************************/
-/***        External Variables                                            ***/
-/****************************************************************************/
-
-/****************************************************************************/
-/****************************************************************************/
+/***        Exported Variables
+ ***/
 /****************************************************************************/
 
-#endif /*APP_LEDS_H*/
+#if defined __cplusplus
+}
+#endif
+
+#endif /* ROM_EFUSE_H_ */
+
+/****************************************************************************/
+/***        END OF FILE                                                   ***/
+/****************************************************************************/

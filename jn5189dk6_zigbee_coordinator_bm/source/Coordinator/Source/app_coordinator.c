@@ -25,6 +25,8 @@
 #include "app_ota_server.h"
 #include "app_leds.h"
 #include "app.h"
+
+#include "iot_pwm.h"
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
 /****************************************************************************/
@@ -262,6 +264,8 @@ void APP_vBdbCallback(BDB_tsBdbEvent *psBdbEvent)
  ****************************************************************************/
 void APP_taskCoordinator(void)
 {
+	static uint8_t lightOn = false;
+	static uint8_t brightness = 100;
     BDB_teStatus eStatus;
     APP_tsEvent sAppEvent;
     sAppEvent.eType = APP_E_EVENT_NONE;
@@ -273,14 +277,17 @@ void APP_taskCoordinator(void)
         switch(sAppEvent.eType)
         {
 
-
                 case APP_E_EVENT_SERIAL_LED_ON:
-                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send Ledon Cmd\r\n");
+                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send LED ON Cmd\r\n");
+                    APP_vSetLedBrightness(LED1, brightness);
+                    lightOn = true;
                     vAppSendOn();
                     break;
 
                 case APP_E_EVENT_SERIAL_LED_OFF:
-                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send Ledoff Cmd\r\n");
+                    DBG_vPrintf(TRACE_APP, "APP-EVT: Send LED OFF Cmd\r\n");
+                    APP_vSetLedBrightness(LED1, 0);
+                    lightOn = false;
                     vAppSendOff();
                     break;
 
@@ -288,6 +295,14 @@ void APP_taskCoordinator(void)
                     DBG_vPrintf(TRACE_APP, "APP-EVT: Send Toggle Cmd\r\n");
                     vAppSendOnOff();
                     break;
+
+                case APP_E_EVENT_SERIAL_BRIGHTNESS:
+                	DBG_vPrintf(TRACE_APP, "APP-EVT: Tune Brightness: %d Cmd\r\n", sAppEvent.data);
+					brightness = sAppEvent.data;
+                	if (lightOn) {
+                		APP_vSetLedBrightness(LED1, brightness);
+                	}
+                	break;
 
                 case APP_E_EVENT_SERIAL_NWK_STEER:
                     eStatus = BDB_eNsStartNwkSteering();
