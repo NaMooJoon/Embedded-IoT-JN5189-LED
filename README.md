@@ -1,6 +1,6 @@
 ﻿# Intern-2023-nxp
 
-> *Merlotlab Embedded Internship Project*
+> *Merlotlab Embedded Internship Project*  
 > Development Period: 2023.06.26 ~ 2023.08.18
 
 <br>
@@ -14,7 +14,7 @@
 
 ### Overview
 
-![image-20230818091811254](C:\nxp\Workspace\image\image-20230818091811254.png)
+![image-20230818091811254](./image/image-20230818091811254.png)
 
 The ultimate goal to achieve is as follows: Enabling users to remotely control IoT LEDs using their smartphones. To achieve this, three major components are required. Firstly, a cloud server is needed that can exchange data remotely between the user's smartphone and the IoT hub. Secondly, a hub is required that can connect to the cloud server, receive control messages input by the user, and forward data to each LED (end device). Lastly, an end device is necessary that will process control commands as received.
 
@@ -38,11 +38,11 @@ The ultimate goal to achieve is as follows: Enabling users to remotely control I
 
 - #### Hub (Wifi <-> Zigbee message)
 
-  ![image-2023-08-18 092348](C:\nxp\Workspace\image\image-2023-08-18 092348.png)
+  ![image-2023-08-18 092348](./image/image-2023-08-18-092348.png)
 
 - #### NXP Light Control
 
-  ![image-2023-08-18 092723](C:\nxp\Workspace\image\image-2023-08-18 092723.png)
+  ![image-2023-08-18 092723](./image/image-2023-08-18-092723.png)
 
 <br>
 
