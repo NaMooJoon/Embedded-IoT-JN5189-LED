@@ -3,16 +3,17 @@
 > *Merlotlab Embedded Internship Project*  
 > Development Period: 2023.06.26 ~ 2023.08.18
 
+🎦 Demo : https://youtu.be/ep5pD7MmltU?si=y4UVyhXEAHwY603_
 <br>
 
-### Required Devices
+## Required Devices
 
 - [ESP32-C3-DevKitM-1](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/hw-reference/esp32c3/user-guide-devkitm-1.html#esp32-c3-devkitm-1)
 - [NXP-jn5189](https://www.nxp.com/products/wireless/thread/jn5189-88-t-high-performance-and-ultra-low-power-mcus-for-zigbee-and-thread-with-built-in-nfc-option:JN5189_88_T)
 
 <br>
 
-### Overview
+## Overview
 
 ![image-20230818091811254](./image/image-20230818091811254.png)
 
@@ -20,7 +21,7 @@ The ultimate goal to achieve is as follows: Enabling users to remotely control I
 
 <br>
 
-### Requirement
+## Requirement
 
 - Cloud Server
   - Utilizes the AWS Cloud server provided by [ESP Rain Maker](https://rainmaker.espressif.com/) to support communication between the user's phone and ESP.
@@ -34,21 +35,21 @@ The ultimate goal to achieve is as follows: Enabling users to remotely control I
 
 <br>
 
-### Policy
+## Policy
 
-- #### Hub (Wifi <-> Zigbee message)
+- ### Hub (Wifi <-> Zigbee message)
 
   ![image-2023-08-18 092348](./image/image-2023-08-18-092348.png)
 
-- #### NXP Light Control
+- ### NXP Light Control
 
   ![image-2023-08-18 092723](./image/image-2023-08-18-092723.png)
 
 <br>
 
-### Project
+## Project
 
-- #### jn5189dk_zigbee_coordinator_bm
+- ### jn5189dk_zigbee_coordinator_bm
 
   Zigbee 3.0 coordinator.   
   Connected to the Hub's wifi-module (esp32), via USART. Responsible for controlling the RGB LED based on received data and pass the on/off controls to end-device LEDs.
@@ -58,7 +59,7 @@ The ultimate goal to achieve is as follows: Enabling users to remotely control I
   > - **jn5189dk6_rgb_led**: Controls the RGB LED using PWM.
   > - **jn5189dk6_usart_esp_nxp_protocol**: Exchanges data with the esp32 module through USART communication.
 
-- #### jn5189dk_zigbee_router_bm
+- ### jn5189dk_zigbee_router_bm
 
   Zigbee 3.0 router.  
   Takes the data received from the Coordinator and forwards it to other end-devices or acts as an end-device.
